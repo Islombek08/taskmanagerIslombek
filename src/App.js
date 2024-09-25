@@ -1,0 +1,87 @@
+import React, { useState } from "react";
+import { FaPlus } from "react-icons/fa";
+import ListComponent from "./components/ListComponent";
+import "./styles.css";
+
+const App = () => {
+  const [newListTitle, setNewListTitle] = useState("");
+
+  const addList = () => {
+    if (newListTitle.trim() === "") return;
+    setLists([...lists, { id: Date.now(), title: newListTitle, cards: [] }]);
+    setNewListTitle("");
+  };
+
+  const addCard = (listId, cardTitle) => {
+    if (cardTitle.trim() === "") return;
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === listId
+          ? {
+              ...list,
+              cards: [...list.cards, { id: Date.now(), title: cardTitle }],
+            }
+          : list
+      )
+    );
+  };
+
+  const handleSaveCard = (listId, cardId, newTitle) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === listId
+          ? {
+              ...list,
+              cards: list.cards.map((card) =>
+                card.id === cardId ? { ...card, title: newTitle } : card
+              ),
+            }
+          : list
+      )
+    );
+  };
+
+  const handleDeleteCard = (listId, cardId) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list.id === listId
+          ? {
+              ...list,
+              cards: list.cards.filter((card) => card.id !== cardId),
+            }
+          : list
+      )
+    );
+  };
+
+  return (
+    <div className="app-container">
+      <h1>React Trello Clone</h1>
+
+      <div className="lists-container">
+        {lists.map((list) => (
+          <ListComponent
+            key={list.id}
+            list={list}
+            onAddCard={addCard}
+            onSaveCard={handleSaveCard}
+            onDeleteCard={handleDeleteCard}
+          />
+        ))}
+
+        <div className="add-list-container">
+          <input
+            type="text"
+            placeholder="+ Add a list"
+            value={newListTitle}
+            onChange={(e) => setNewListTitle(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && addList()}
+          />
+          <FaPlus onClick={addList} className="add-list-icon" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
